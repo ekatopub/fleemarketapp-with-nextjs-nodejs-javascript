@@ -2,7 +2,7 @@ import Image from "next/image";
 
 const ReadSingleItem = (props) => {
 	if (!props.singleItem) return <div>Not Found</div>;
-	//console.log(props);
+	console.log(props);
 	return (
 		<div>
 			<div>

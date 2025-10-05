@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 const ReadAllItems = (props) => {
-	//console.log(props);
+	console.log(props);
 	return (
 		<div>
 			<div>
