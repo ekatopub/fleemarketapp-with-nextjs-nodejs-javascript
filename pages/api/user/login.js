@@ -8,17 +8,17 @@ const loginUser = async (req, res) => {
 	//awaitとasyncはペアで使う
 	try {
 		await connectDB();
-		//console.log(req.body);
+		//console.log("req.body:" + JSON.stringify(req.body));
 		const savedUserData = await UserModel.findOne({ email: req.body.email });
-		//console.log(savedUserData);
+		//console.log("savedUserData:" + savedUserData);
 		if (savedUserData) {
 			//ユーザー登録がある場合の処理
 			if (req.body.password === savedUserData.password) {
 				//パスワードが正しい
 				const payload = { email: req.body.email };
 				const token = jwt.sign(payload, secret_key, { expiresIn: "23h" });
-				console.log(token);
-				return res.status(200).json({ message: "ログイン成功" });
+				//console.log(token);
+				return res.status(200).json({ message: "ログイン成功", token: token });
 			} else {
 				//パスワードが違う
 				return res
