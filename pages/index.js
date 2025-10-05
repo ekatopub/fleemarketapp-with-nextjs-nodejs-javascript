@@ -30,6 +30,13 @@ export const getServerSideProps = async () => {
 		? `https://${process.env.VERCEL_URL}`
 		: "http://localhost:3000";
 	const response = await fetch(`${baseUrl}/api/item/readall`);
+
+	const contentType = response.headers.get("content-type") || "";
+	if (!contentType.includes("application/json")) {
+		console.error("API did not return JSON:", await response.text());
+		return { notFound: true };
+	}
+
 	const data = await response.json();
 
 	return {
