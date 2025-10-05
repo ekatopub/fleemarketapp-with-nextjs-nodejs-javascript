@@ -1,6 +1,7 @@
 import Image from "next/image";
 
 const ReadSingleItem = (props) => {
+	if (!props.singleItem) return <div>Not Found</div>;
 	//console.log(props);
 	return (
 		<div>
@@ -28,10 +29,12 @@ export const getServerSideProps = async (context) => {
 		? `https://${process.env.VERCEL_URL}`
 		: "http://localhost:3000";
 	const response = await fetch(`${baseUrl}/api/item/${context.query.id}`);
-	const singleItem = await response.json();
+	const data = await response.json();
 	//console.log(context);
 
 	return {
-		props: singleItem, //これでpropsに入れてconst ReadSingleItem = () => に渡す
+		props: {
+			singleItem: data.singleItem || null, //これでpropsに入れてconst ReadSingleItem = () => に渡す
+		},
 	};
 };
