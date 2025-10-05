@@ -30,9 +30,9 @@ export const getServerSideProps = async () => {
 		? `https://${process.env.VERCEL_URL}`
 		: "http://localhost:3000";
 	const response = await fetch(`${baseUrl}/api/item/readall`);
-	const allItems = await response.json();
+	const data = await response.json();
 
 	return {
-		props: allItems, //これでpropsに入れてconst ReadAllItems = () => に渡す
+		props: { allItems: data.allItems || [] }, //これでpropsに入れてconst ReadAllItems = () => に渡す
 	};
 };
