@@ -24,9 +24,10 @@ const ReadSingleItem = (props) => {
 export default ReadSingleItem;
 
 export const getServerSideProps = async (context) => {
-	const response = await fetch(
-		`http://localhost:3000/api/item/${context.query.id}`
-	);
+	const baseUrl = process.env.VERCEL_URL //Vercelが自動で本番環境にセットしてくれる環境変数
+		? `https://${process.env.VERCEL_URL}`
+		: "http://localhost:3000";
+	const response = await fetch(`${baseUrl}/api/item/${context.query.id}`);
 	const singleItem = await response.json();
 	//console.log(context);
 

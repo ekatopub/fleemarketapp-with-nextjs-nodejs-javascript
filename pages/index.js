@@ -26,7 +26,10 @@ const ReadAllItems = (props) => {
 export default ReadAllItems;
 
 export const getServerSideProps = async () => {
-	const response = await fetch("http://localhost:3000/api/item/readall");
+	const baseUrl = process.env.VERCEL_URL //Vercelが自動で本番環境にセットしてくれる環境変数
+		? `https://${process.env.VERCEL_URL}`
+		: "http://localhost:3000";
+	const response = await fetch(`${baseUrl}/api/item/readall`);
 	const allItems = await response.json();
 
 	return {
