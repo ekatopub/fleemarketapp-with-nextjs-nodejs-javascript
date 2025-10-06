@@ -8,9 +8,9 @@ const auth = (handler) => {
 			return handler(req, res);
 		} //ログイン状態の確認が必要なのはPOST（修正・削除）のときのみ
 
-		const token =
-			"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRlc3RtYWlsQHRlc3QuY29tIiwiaWF0IjoxNzU5NjQ5OTI3LCJleHAiOjE3NTk3MzI3Mjd9.Q50F558mcFHb32SkQEV8AsUuooAoTzgtvAadu_k8uFA";
-		//const token = await req.handlers.authrization.split("")[1]; //トークン受け取り
+		//const token =
+		//("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRlc3RtYWlsQHRlc3QuY29tIiwiaWF0IjoxNzU5NjQ5OTI3LCJleHAiOjE3NTk3MzI3Mjd9.Q50F558mcFHb32SkQEV8AsUuooAoTzgtvAadu_k8uFA");
+		const token = await req.headers.authorization?.split(" ")[1]; //トークン受け取り
 		if (!token) {
 			return res.status(401).json({ message: "トークンがありません" });
 		}

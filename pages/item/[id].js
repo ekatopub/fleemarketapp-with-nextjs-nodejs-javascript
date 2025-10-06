@@ -1,8 +1,9 @@
 import Image from "next/image";
+import Link from "next/link";
 
 const ReadSingleItem = (props) => {
 	if (!props.singleItem) return <div>Not Found</div>;
-	console.log(props);
+	//console.log(props);
 	return (
 		<div>
 			<div>
@@ -18,6 +19,14 @@ const ReadSingleItem = (props) => {
 				<h3>{props.singleItem.title}</h3>
 				<hr />
 				<p>{props.singleItem.description}</p>
+				<div>
+					<Link href={`/item/update/${props.singleitem._id}`}>
+						アイテム編集
+					</Link>
+					<Link href={`/item/delete/${props.singleitem._id}`}>
+						アイテム削除
+					</Link>
+				</div>
 			</div>
 		</div>
 	);
@@ -33,7 +42,7 @@ export const getServerSideProps = async (context) => {
 	const contentType = response.headers.get("content-type") || "";
 	if (!contentType.includes("application/json")) {
 		console.error("API did not return JSON:", await response.text());
-		return { notFound: true };
+		return { notFound: true }; //Vercelエラー対策
 	}
 
 	const data = await response.json();

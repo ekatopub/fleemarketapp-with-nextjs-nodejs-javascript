@@ -34,7 +34,7 @@ export const getServerSideProps = async () => {
 	const contentType = response.headers.get("content-type") || "";
 	if (!contentType.includes("application/json")) {
 		console.error("API did not return JSON:", await response.text());
-		return { notFound: true };
+		return { notFound: true }; //Vercelエラー対策
 	}
 
 	const data = await response.json();
