@@ -13,6 +13,7 @@ jobs:
 
       - name: Install sops/age and python deps
         run: |
+          set -euo pipefail
           sudo apt-get update -y
           sudo apt-get install -y curl python3 python3-pip jq || true
           pip3 install pyyaml || true
@@ -22,17 +23,42 @@ jobs:
             sudo apt-get install -y age || true
           fi
 
-          # install sops by downloading latest linux amd64 release asset
-          ASSET_URL=$(curl -s https://api.github.com/repos/getsops/sops/releases/latest \
-            | grep browser_download_url | grep -iE 'linux(.|_|-)?amd64|x86_64' | head -n1 | cut -d '"' -f4)
-          if [ -z "$ASSET_URL" ]; then
-            echo "ERROR: could not find sops linux amd64 asset"; exit 1
-          fi
-          curl -L --fail -o /tmp/sops "$ASSET_URL"
-          chmod +x /tmp/sops
-          sudo mv /tmp/sops /usr/local/bin/sops
+          # detect runner arch and pick correct sops asset
+          ARCH="$(uname -m)"
+          case "$ARCH" in
+            x86_64|amd64) WANT='amd64' ;;
+            aarch64|arm64) WANT='arm64' ;;
+            *) WANT='amd64' ;; 
+          esac
 
-          sops --version || true
+          ASSET_URL="$(curl -s https://api.github.com/repos/getsops/sops/releases/latest \
+            | jq -r '.assets[].browser_download_url' \
+            | grep -iE "linux(.|_|-)?($WANT|x86_64|amd64|arm64)" \
+            | head -n1 || true)"
+
+          if [ -z "$ASSET_URL" ]; then
+            echo "ERROR: could not find sops linux asset for $ARCH"; exit 1
+          fi
+
+          echo "Downloading sops asset: $ASSET_URL"
+          TMP="/tmp/sops.asset"
+          curl -L --fail -o "$TMP" "$ASSET_URL"
+
+          # if tarball, extract binary; otherwise assume direct binary
+          if file "$TMP" | grep -q 'gzip compressed'; then
+            mkdir -p /tmp/sops-extract
+            tar -xzf "$TMP" -C /tmp/sops-extract
+            SOPS_BIN="$(find /tmp/sops-extract -type f -name sops -perm /111 | head -n1 || true)"
+            if [ -z "$SOPS_BIN" ]; then
+              echo "ERROR: sops binary not found in archive"; exit 1
+            fi
+            sudo mv "$SOPS_BIN" /usr/local/bin/sops
+          else
+            sudo mv "$TMP" /usr/local/bin/sops
+          fi
+
+          sudo chmod +x /usr/local/bin/sops
+          /usr/local/bin/sops --version || true
           age --version || true
 
       - name: Prepare age key
