@@ -34,7 +34,6 @@ jobs:
           SOPS_AGE_PRIVATE_KEY: ${{ secrets.SOPS_AGE_PRIVATE_KEY }}
         run: |
           export SOPS_AGE_KEY_FILE=/tmp/age.key
-          # decrypt YAML -> dotenv format
           sops --decrypt --input-type yaml --output-type dotenv pages/secrets/secrets.yaml.enc > .env.production
           ls -la .env.production
           sed -n '1,30p' .env.production || true
@@ -56,7 +55,7 @@ jobs:
           npm run build
 
       - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v23
+        uses: amondnet/vercel-action@v41.1.4
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
