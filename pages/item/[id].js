@@ -20,10 +20,10 @@ const ReadSingleItem = (props) => {
 				<hr />
 				<p>{props.singleItem.description}</p>
 				<div>
-					<Link href={`/item/update/${props.singleitem._id}`}>
-						アイテム編集
+					<Link href={`/item/update/${props.singleItem._id}`}>
+						アイテム編集　
 					</Link>
-					<Link href={`/item/delete/${props.singleitem._id}`}>
+					<Link href={`/item/delete/${props.singleItem._id}`}>
 						アイテム削除
 					</Link>
 				</div>

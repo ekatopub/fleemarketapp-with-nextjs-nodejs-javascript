@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# secrets (do not commit plain secrets or local env)
+secrets.yaml
+secrets/*.yaml
+.env.local
+.env.production

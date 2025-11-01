@@ -1,0 +1,64 @@
+// ...existing code...
+name: Decrypt and Deploy to Vercel
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  decrypt-build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install sops
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y sops
+
+      - name: Setup age private key
+        env:
+          SOPS_AGE_PRIVATE_KEY: ${{ secrets.SOPS_AGE_PRIVATE_KEY }}
+        run: |
+          mkdir -p ~/.config/sops/age
+          echo "$SOPS_AGE_PRIVATE_KEY" > ~/.config/sops/age/keys.txt
+          chmod 600 ~/.config/sops/age/keys.txt
+
+      - name: Decrypt secrets -> .env.production
+        run: |
+          # decrypt (YAML) and convert to dotenv simple transform
+          sops -d pages/secrets/secrets.yaml.enc > /tmp/secrets.dec.yaml
+          # convert simple "KEY: \"value\"" YAML -> KEY=value
+          sed -E 's/^[[:space:]]*([^:]+):[[:space:]]*"(.*)"$/\1=\2/' /tmp/secrets.dec.yaml > .env.production
+          # (optional) show keys names for debug
+          cut -d= -f1 .env.production || true
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Install and build
+        env:
+          # load env vars for build
+          # load all KEY=VAL from .env.production into environment for the build
+          NODE_ENV: production
+        run: |
+          set -o allexport
+          source .env.production || true
+          set +o allexport
+          npm ci
+          npm run build
+
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v23
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--prod'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
