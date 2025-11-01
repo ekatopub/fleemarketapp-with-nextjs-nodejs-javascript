@@ -1,0 +1,114 @@
+name: Decrypt secrets and Deploy to Vercel
+
+on:
+  push:
+    branches: [main, master]
+
+jobs:
+  decrypt-build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install sops/age and python deps
+        run: |
+          set -euo pipefail
+          sudo apt-get update -y
+          sudo apt-get install -y curl python3 python3-pip jq || true
+          pip3 install pyyaml || true
+
+          # ensure age exists (try apt, ignore error)
+          if ! command -v age >/dev/null 2>&1; then
+            sudo apt-get install -y age || true
+          fi
+
+          # detect runner arch and pick correct sops asset
+          ARCH="$(uname -m)"
+          case "$ARCH" in
+            x86_64|amd64) WANT='amd64' ;;
+            aarch64|arm64) WANT='arm64' ;;
+            *) WANT='amd64' ;; 
+          esac
+
+          ASSET_URL="$(curl -s https://api.github.com/repos/getsops/sops/releases/latest \
+            | jq -r '.assets[].browser_download_url' \
+            | grep -iE "linux(.|_|-)?($WANT|x86_64|amd64|arm64)" \
+            | head -n1 || true)"
+
+          if [ -z "$ASSET_URL" ]; then
+            echo "ERROR: could not find sops linux asset for $ARCH"; exit 1
+          fi
+
+          echo "Downloading sops asset: $ASSET_URL"
+          TMP="/tmp/sops.asset"
+          curl -L --fail -o "$TMP" "$ASSET_URL"
+
+          # if tarball, extract binary; otherwise assume direct binary
+          if file "$TMP" | grep -q 'gzip compressed'; then
+            mkdir -p /tmp/sops-extract
+            tar -xzf "$TMP" -C /tmp/sops-extract
+            SOPS_BIN="$(find /tmp/sops-extract -type f -name sops -perm /111 | head -n1 || true)"
+            if [ -z "$SOPS_BIN" ]; then
+              echo "ERROR: sops binary not found in archive"; exit 1
+            fi
+            sudo mv "$SOPS_BIN" /usr/local/bin/sops
+          else
+            sudo mv "$TMP" /usr/local/bin/sops
+          fi
+
+          sudo chmod +x /usr/local/bin/sops
+          /usr/local/bin/sops --version || true
+          age --version || true
+
+      - name: Prepare age key
+        env:
+          SOPS_AGE_PRIVATE_KEY: ${{ secrets.SOPS_AGE_PRIVATE_KEY }}
+        run: |
+          if [ -z "$SOPS_AGE_PRIVATE_KEY" ]; then echo "SOPS_AGE_PRIVATE_KEY not set"; exit 1; fi
+          printf '%s\n' "$SOPS_AGE_PRIVATE_KEY" > /tmp/age.key
+          chmod 600 /tmp/age.key
+          export SOPS_AGE_KEY_FILE=/tmp/age.key
+          echo "age key written to /tmp/age.key"
+
+      - name: Debug check age key file
+        run: |
+          echo "SOPS_AGE_KEY_FILE=$SOPS_AGE_KEY_FILE"
+          ls -l /tmp/age.key || true
+          echo "head /tmp/age.key (masked):"
+          head -n 3 /tmp/age.key || true
+
+      - name: Decrypt secrets -> .env.production
+        env:
+          SOPS_AGE_PRIVATE_KEY: ${{ secrets.SOPS_AGE_PRIVATE_KEY }}
+        run: |
+          export SOPS_AGE_KEY_FILE=/tmp/age.key
+          sops --decrypt --input-type yaml --output-type dotenv pages/secrets/secrets.yaml.enc > .env.production
+          ls -la .env.production
+          sed -n '1,30p' .env.production || true
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: "npm"
+
+      - name: Build (use decrypted env)
+        env:
+          NODE_ENV: production
+        run: |
+          set -o allexport
+          source .env.production || true
+          set +o allexport
+          npm ci
+          npm run build
+
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v41.1.4
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: "--prod"
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
