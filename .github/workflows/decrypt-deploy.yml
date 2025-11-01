@@ -2,7 +2,7 @@ name: Decrypt secrets and Deploy to Vercel
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   decrypt-build-deploy:
@@ -38,15 +38,15 @@ jobs:
           sops -d --input-type yaml pages/secrets/secrets.yaml.enc > /tmp/secrets.dec.yaml
 
           python3 - <<'PY'
-import yaml
-data = yaml.safe_load(open('/tmp/secrets.dec.yaml')) or {}
-def q(v):
-    s = str(v).replace('\\','\\\\').replace('"','\\"')
-    return f'"{s}"'
-with open('.env.production','w') as f:
-    for k,v in data.items():
-        f.write(f'{k}={q(v)}\n')
-PY
+            import yaml
+            data = yaml.safe_load(open('/tmp/secrets.dec.yaml')) or {}
+            def q(v):
+                s = str(v).replace('\\','\\\\').replace('"','\\"')
+                return f'"{s}"'
+            with open('.env.production','w') as f:
+                for k,v in data.items():
+                    f.write(f'{k}={q(v)}\n')
+          PY
           ls -la .env.production
           sed -n '1,20p' .env.production || true
 
@@ -54,7 +54,7 @@ PY
         uses: actions/setup-node@v4
         with:
           node-version: 18
-          cache: 'npm'
+          cache: "npm"
 
       - name: Build (use decrypted env)
         env:
@@ -72,4 +72,4 @@ PY
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: '--prod'
+          vercel-args: "--prod"
