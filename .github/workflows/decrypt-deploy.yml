@@ -101,10 +101,13 @@ jobs:
           source .env.production || true
           set +o allexport
 
-          # ensure devDependencies (typescript) are installed for next.config.ts
-          NPM_CONFIG_PRODUCTION=false npm ci
-
+          # Ensure devDependencies (typescript) are available for next.config.ts
+          export NPM_CONFIG_PRODUCTION=false
           npm ci
+
+          # Make sure TypeScript is present (some npm versions/locks may still not provide it)
+          npm install --no-save typescript
+
           npm run build
 
       - name: Deploy to Vercel
