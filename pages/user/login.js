@@ -18,10 +18,10 @@ const Login = () => {
 					password: password,
 				}),
 			});
-			const jsonData = await response.json();
-			//console.log(jsonData);
+			const jsonData = await response.json(); //バックエンドから返ってきたレスポンスを確認
+			//console.log(jsonData);　//トークンをフロントエンド側で受け取れているか確認
 			//console.log(jsonData.message);
-			localStorage.setItem("token", jsonData.token);
+			localStorage.setItem("token", jsonData.token); //トークンをLocal Storage へ書き込み
 			alert(jsonData.message);
 		} catch (err) {
 			alert("ログイン失敗");
@@ -48,7 +48,7 @@ const Login = () => {
 					placeholder="パスワード"
 					required
 				/>
-				<button>投稿</button>
+				<button>ログイン</button>
 			</form>
 		</div>
 	);

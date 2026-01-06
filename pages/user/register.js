@@ -7,7 +7,7 @@ const Register = () => {
 	//console.log(name);
 
 	const handleSubmit = async (e) => {
-		e.preventDefault();
+		e.preventDefault(); //送信処理後のリロードを止める
 		try {
 			const response = await fetch("http://localhost:3000/api/user/register", {
 				method: "POST",
@@ -21,7 +21,7 @@ const Register = () => {
 					password: password,
 				}),
 			});
-			const jsonData = await response.json();
+			const jsonData = await response.json(); //ストリーム形式のレスポンスデータをJSON 形式へと変換
 			alert(jsonData.message);
 		} catch (err) {
 			alert("ユーザー登録失敗");
@@ -35,6 +35,8 @@ const Register = () => {
 				<input
 					value={name}
 					onChange={(e) => {
+						//<input> に入力された名前のデータを、state である name に保管
+						//onChangeで、eの中のデータをnameにデータを書き込むsetNameに渡す
 						setName(e.target.value);
 						//	console.log(e);
 					}} //eの中には様々なデータが入っているのでe.target.valueのように指定する

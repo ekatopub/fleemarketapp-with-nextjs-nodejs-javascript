@@ -3,7 +3,7 @@ import { useState } from "react";
 
 const UpdateItem = (props) => {
 	//console.log(props);
-	const [title, setTitle] = useState(props.singleItem.title);
+	const [title, setTitle] = useState(props.singleItem.title); //元データを読み込む
 	const [price, setPrice] = useState(props.singleItem.price);
 	const [image, setImage] = useState(props.singleItem.image);
 	const [description, setDescription] = useState(props.singleItem.description);
@@ -12,12 +12,29 @@ const UpdateItem = (props) => {
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 		try {
+			//トークン形式ずれへの対応
+			const token = localStorage.getItem("token");
+			//			const bearerToken =
+			//				token && token.startsWith("Bearer ") ? token.split(" ")[1] : "";
+			// トークンのデバッグ出力
+			//console.log("localStorage token:", token);
+			let bearerToken = "";
+			if (token) {
+				if (token.startsWith("Bearer ")) {
+					bearerToken = token.split(" ")[1];
+				} else {
+					bearerToken = token;
+				}
+			}
+			//console.log("送信するAuthorizationヘッダー: Bearer", bearerToken);
+
 			const response = await fetch(`/api/item/update/${props.singleItem._id}`, {
 				method: "POST",
 				headers: {
 					Accept: "application/json",
 					"Content-Type": "application/json",
-					authorization: `Bearer ${localStorage.getItem("token")}`,
+					//					Authorization: `Bearer ${localStorage.getItem("token")}`,
+					Authorization: `Bearer ${bearerToken}`,
 				}, //JWTではBearerが慣習的に使われているがマストではない
 				body: JSON.stringify({
 					title: title,
@@ -26,9 +43,10 @@ const UpdateItem = (props) => {
 					description: description,
 				}),
 			});
-			console.log(
-				"response.headers.authorization:" + response.headers.authorization
-			);
+			//			console.log(
+			//				"response.headers.authorization:",
+			//				response.headers.get("authorization")
+			//			);
 			const jsonData = await response.json();
 			alert(jsonData.message);
 		} catch (err) {
