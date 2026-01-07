@@ -4,6 +4,7 @@ import useAuth from "../../../utils/useAuth";
 import Head from "next/head";
 
 const UpdateItem = (props) => {
+	const loginUser = useAuth();
 	//console.log(props);
 	const [title, setTitle] = useState(props.singleItem.title); //元データを読み込む
 	const [price, setPrice] = useState(props.singleItem.price);
@@ -51,12 +52,11 @@ const UpdateItem = (props) => {
 			//			);
 			const jsonData = await response.json();
 			alert(jsonData.message);
-		} catch (err) {
+		} catch {
 			alert("アイテム編集失敗");
 		}
 	};
 
-	const loginUser = useAuth();
 	if (loginUser === props.singleItem.email) {
 		return (
 			<div>

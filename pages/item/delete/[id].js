@@ -3,6 +3,7 @@ import useAuth from "../../../utils/useAuth";
 import Head from "next/head";
 
 const DeleteItem = (props) => {
+	const loginUser = useAuth();
 	//console.log(props);
 
 	if (!props.singleItem) return <div>Not Found</div>;
@@ -23,12 +24,11 @@ const DeleteItem = (props) => {
 			);
 			const jsonData = await response.json();
 			alert(jsonData.message);
-		} catch (err) {
+		} catch {
 			alert("アイテム削除失敗");
 		}
 	};
 
-	const loginUser = useAuth();
 	if (loginUser === props.singleItem.email) {
 		return (
 			<div className="delete-page">

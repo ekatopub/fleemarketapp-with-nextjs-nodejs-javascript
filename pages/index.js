@@ -21,8 +21,8 @@ const ReadAllItems = (props) => {
 								src={item.image}
 								//width={750}
 								//height={500}
-								width={300}
-								height={200}
+								width={450}
+								height={300}
 								alt="item-image"
 								//style={{ objectFit: "cover" }}
 								className="card-img"
