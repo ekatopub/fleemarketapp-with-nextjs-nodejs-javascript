@@ -250,6 +250,12 @@ header * li a:hover {
 	width: 100%;
 	border-radius: 1rem 1rem 0 0;
 }
+.card img.card-img {
+	height: 300px;
+	width: auto;
+	object-fit: cover;
+	display: block;
+}
 
 .texts-area {
 	padding: 1.5rem 1.5rem;

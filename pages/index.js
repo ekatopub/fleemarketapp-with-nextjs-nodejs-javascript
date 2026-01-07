@@ -24,7 +24,8 @@ const ReadAllItems = (props) => {
 								width={300}
 								height={200}
 								alt="item-image"
-								style={{ objectFit: "cover" }}
+								//style={{ objectFit: "cover" }}
+								className="card-img"
 							/>
 							<div className="texts-area">
 								<h2>￥{item.price}</h2>
