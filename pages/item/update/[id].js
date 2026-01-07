@@ -2,6 +2,7 @@
 import { useState } from "react";
 import useAuth from "../../../utils/useAuth";
 import Head from "next/head";
+import ImgInput from "../../../components/imgInput";
 
 const UpdateItem = (props) => {
 	const loginUser = useAuth();
@@ -64,6 +65,7 @@ const UpdateItem = (props) => {
 					<title> アイテム編集 </title>
 				</Head>
 				<h1 className="page-title"> アイテム編集 </h1>
+				<ImgInput setImage={setImage} />
 				<form onSubmit={handleSubmit}>
 					<input
 						value={title}
