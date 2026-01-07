@@ -10,7 +10,7 @@ const Register = () => {
 	const handleSubmit = async (e) => {
 		e.preventDefault(); //送信処理後のリロードを止める
 		try {
-			const response = await fetch("http://localhost:3000/api/user/register", {
+			const response = await fetch("/api/user/register", {
 				method: "POST",
 				headers: {
 					Accept: "application/json",

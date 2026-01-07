@@ -28,7 +28,7 @@ const CreateItem = () => {
 			}
 			//console.log("送信するAuthorizationヘッダー: Bearer", bearerToken);
 
-			const response = await fetch("http://localhost:3000/api/item/create", {
+			const response = await fetch("/api/item/create", {
 				method: "POST",
 				headers: {
 					Accept: "application/json",
