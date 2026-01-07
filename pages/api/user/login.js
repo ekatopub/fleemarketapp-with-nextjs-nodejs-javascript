@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import connectDB from "../../../utils/database";
 import { UserModel } from "../../../utils/schemaModels";
 
-const secret_key = "nextmartket"; //jwt用
+const secret_key = "nextmarket"; //jwt用
 
 const loginUser = async (req, res) => {
 	//awaitとasyncはペアで使う

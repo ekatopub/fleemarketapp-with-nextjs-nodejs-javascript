@@ -1,11 +1,15 @@
 import Image from "next/image";
 import Link from "next/link";
+import Head from "next/head";
 
 const ReadSingleItem = (props) => {
 	if (!props.singleItem) return <div>Not Found</div>;
 	//console.log(props);
 	return (
-		<div>
+		<div className="grid-container-si">
+			<Head>
+				<title>{props.singleItem.title}</title>
+			</Head>
 			<div>
 				<Image
 					src={props.singleItem.image}
@@ -21,7 +25,7 @@ const ReadSingleItem = (props) => {
 				<p>{props.singleItem.description}</p>
 				<div>
 					<Link href={`/item/update/${props.singleItem._id}`}>
-						アイテム編集　
+						アイテム編集
 					</Link>
 					<Link href={`/item/delete/${props.singleItem._id}`}>
 						アイテム削除
