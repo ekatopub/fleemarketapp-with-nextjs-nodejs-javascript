@@ -19,9 +19,12 @@ const ReadAllItems = (props) => {
 							{/* <a className="card"> Next.js 13以降の新しい<Link>コンポーネントでは、子要素として<a>タグを直接使ってはいけない*/}
 							<Image
 								src={item.image}
-								width={750}
-								height={500}
+								//width={750}
+								//height={500}
+								width={300}
+								height={200}
 								alt="item-image"
+								style={{ objectFit: "cover" }}
 							/>
 							<div className="texts-area">
 								<h2>￥{item.price}</h2>
