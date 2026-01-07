@@ -87,7 +87,7 @@ const CreateItem = () => {
 						value={image}
 						onChange={(e) => setImage(e.target.value)}
 						type="text"
-						nam7e="image"
+						name="image"
 						placeholder="画像"
 						required
 					/>
